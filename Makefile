@@ -19,4 +19,4 @@ $(TESTS): $(TESTOBJ)
 .PHONY: clean
 
 clean:
-	rm -f *.o $(TESTDIR)/*.o extractor
+	rm -f *.o $(TESTDIR)/*.o $(TESTDIR)/$(TESTS) extractor
