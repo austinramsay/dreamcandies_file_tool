@@ -29,6 +29,8 @@ std::vector<std::string> IO_handler::read_lines(const std::string& filename) {
 	std::string cur_line;
 
 	file_in.open(filename);
+
+	// If file opened, iterate each line and push each one onto the 'lines' vector
 	if (file_in.is_open()) {
 		while (file_in) {
 			if (getline(file_in, cur_line))
@@ -57,7 +59,7 @@ int IO_handler::write_lines(const std::string& filename, const std::vector<std::
 
 	file_out.open(filename);
 
-	// If file opened, iterate through the vector strings and write to file
+	// If file opened, iterate through the vector strings and write each one to the file
 	if (file_out.is_open()) {
 		for (const auto &str : lines) {
 			file_out << str << "\n";

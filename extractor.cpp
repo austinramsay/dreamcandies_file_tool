@@ -86,6 +86,13 @@ int main() {
 	return 0;
 }
 
+/*
+ * vector<string> extract_column(string, string)
+ *
+ * Given a CSV file path and a specified column header, extract all tokens belonging to that header from the CSV content
+ *
+ * Returns: string vector containing relevant tokens
+ */
 std::vector<std::string> extract_column(const std::string path, const std::string column_header) {
 
 	Parser parser;
@@ -115,6 +122,16 @@ std::vector<std::string> extract_column(const std::string path, const std::strin
 	return extr_data;
 }
 
+/*
+ * vector<string> get_matching_entries(string, string, vector<string>&, const bool)
+ *
+ * Given a CSV file path, a column header name, tokens to match to, and an optimization flag, 
+ * extract full line entries where the line/column value matches one of the tokens provided to match to. 
+ *
+ * Optimization flag just allows the function to break from the inner loop to prevent full x*y loops when not necessary
+ *
+ * Returns: string vector containing full lines of a CSV file with a matching value to one of its columns
+ */
 std::vector<std::string> get_matching_entries(const std::string path, const std::string match_header, std::vector<std::string> &match_tokens, const bool optimize) {
 
 	Parser parser;

@@ -1,10 +1,6 @@
 CXX=g++
 CXXFLAGS=-I. -g
 OBJ=io_handler.o parser.o extractor.o
-TESTOBJ=io_handler.o parser.o
-
-TESTDIR=tests
-TESTS= test00
 
 %.o: %.c 
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
@@ -12,11 +8,7 @@ TESTS= test00
 extractor: $(OBJ)
 	$(CXX) -o $@ $^ $(CXXFLAGS)
 
-$(TESTS): $(TESTOBJ)
-	$(CXX) $(CXXFLAGS) -o $(TESTDIR)/$@.o -c $(TESTDIR)/$@.cpp 
-	$(CXX) $(CXXFLAGS) -o $(TESTDIR)/$@ $^ $(TESTDIR)/$@.o 
-
 .PHONY: clean
 
 clean:
-	rm -f *.o *_EXTRACTED.CSV $(TESTDIR)/*.o $(TESTDIR)/$(TESTS) test_results extractor
+	rm -f *.o *_EXTRACTED.CSV extractor
