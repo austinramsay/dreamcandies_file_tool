@@ -43,7 +43,7 @@
 
 // Function prototypes
 std::vector<std::string> extract_column(const std::string, const std::string);
-std::vector<std::string> get_matching_entries(const std::string, const bool, std::vector<std::string>&);
+std::vector<std::string> get_matching_entries(const std::string, const std::string, std::vector<std::string>&, const bool optimize);
 
 /* 
  * Main driver function for DreamCandies File Tool
@@ -65,13 +65,17 @@ int main() {
         }
 
 	// Extract relevant entries from the CUSTOMER.CSV file
-	buffer = get_matching_entries(CUSTOMER_TABLE_PATH, true, cust_codes);
+	buffer = get_matching_entries(CUSTOMER_TABLE_PATH, CCODE_HEADER, cust_codes, true);
 	io_handle.write_lines(CUSTOMER_EXTRACTED_PATH, buffer);
 	buffer.clear();
 
 	// Extract relevant entries from the INVOICE.CSV file
-	buffer = get_matching_entries(INVOICE_TABLE_PATH, false, cust_codes);
+	buffer = get_matching_entries(INVOICE_TABLE_PATH, ICODE_HEADER, cust_codes, false);
 	io_handle.write_lines(INVOICE_EXTRACTED_PATH, buffer);
+	buffer.clear();
+
+	// Extract invoice codes from INVOICE_EXTRACTED.CSV to prepare for extraction of relevant invoice items
+	std::vector<std::string> inv_codes = extract_column(INVOICE_EXTRACTED_PATH, ICODE_HEADER);
 
 	return 0;
 }
@@ -90,50 +94,45 @@ std::vector<std::string> extract_column(const std::string path, const std::strin
 	// Header expected at line 0
         int column_pos = parser.get_header_column(raw_data.at(0), column_header, TKN_DELIM, STR_DELIM);
 
-        // For each line of the table, extract the requested token
+        // For each line of the table, extract the requested token and push onto extracted data vector
         for (int i = 1; i < raw_data.size(); i++) {
-
                 tokens = parser.split_tokens(raw_data.at(i), TKN_DELIM, STR_DELIM);
-
                 extr_data.push_back(tokens.at(column_pos));
         }
 
 	return extr_data;
 }
 
-std::vector<std::string> get_matching_entries(const std::string path, const bool optimize, std::vector<std::string> &cust_codes) {
+std::vector<std::string> get_matching_entries(const std::string path, const std::string match_header, std::vector<std::string> &match_tokens, const bool optimize) {
 
 	Parser parser;
 	IO_handler io_handle;
 	std::vector<std::string> buffer;
 	std::vector<std::string> tokens;
-	std::vector<std::string> cust_code;
 
 	// Read lines of the specified CSV file into a vector
-	std::vector<std::string> cust_entries = io_handle.read_lines(path);
+	std::vector<std::string> entries = io_handle.read_lines(path);
 	
 	// Verify we extracted any information from the CSV file
-	if (cust_entries.empty()) {
-		std::cout << "Warning: no entries read from customer table CSV." << std::endl;
-		return cust_entries;
+	if (entries.empty()) {
+		std::cout << "Warning: no entries read from '" << path << "'." << std::endl;
+		return entries;
 	}
 
-	// Verify CUSTOMER_CODE header is position zero, if not set to correct position
-	int ccode_column = parser.get_header_column(cust_entries.at(0), CCODE_HEADER, TKN_DELIM, STR_DELIM);
-	if (ccode_column != 0) {
-		std::cout << "Warning: expected header at positon 0 not found in customer DB table CSV." << std::endl;
-		std::cout << "Setting CUSTOMER_CODE header at position '" << ccode_column << "'." << std::endl;
-	}
+	// Determine column header position
+	int column_pos = parser.get_header_column(entries.at(0), CCODE_HEADER, TKN_DELIM, STR_DELIM);
+
+	buffer.push_back(entries.at(0));
 
 	// Iterate through the customer codes we're looking for
-	for (const auto &search : cust_codes) {
+	for (const auto &search : match_tokens) {
 
 		// Iterate through customer entries until finding a match
-		for (const auto &line : cust_entries) {
+		for (const auto &line : entries) {
 			tokens = parser.split_tokens(line, TKN_DELIM, STR_DELIM);
 
 			// If customer code matches current search token, add to buffer and go to next iteration
-			if (tokens.at(ccode_column) == search) {
+			if (tokens.at(column_pos) == search) {
 				buffer.push_back(line);
 				if (optimize)
 					break;
