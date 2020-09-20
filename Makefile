@@ -19,4 +19,4 @@ $(TESTS): $(TESTOBJ)
 .PHONY: clean
 
 clean:
-	rm -f *.o $(TESTDIR)/*.o $(TESTDIR)/$(TESTS) test_results extractor
+	rm -f *.o *_EXTRACTED.CSV $(TESTDIR)/*.o $(TESTDIR)/$(TESTS) test_results extractor
