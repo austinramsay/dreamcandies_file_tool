@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-I.
+CXXFLAGS=-I. -g
 OBJ=io_handler.o parser.o extractor.o
 TESTOBJ=io_handler.o parser.o
 
@@ -19,4 +19,4 @@ $(TESTS): $(TESTOBJ)
 .PHONY: clean
 
 clean:
-	rm -f *.o $(TESTDIR)/*.o $(TESTDIR)/$(TESTS) extractor
+	rm -f *.o $(TESTDIR)/*.o $(TESTDIR)/$(TESTS) test_results extractor

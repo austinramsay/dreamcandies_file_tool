@@ -96,6 +96,7 @@ int Parser::get_header_column(const std::string &header, const std::string &sear
 	bool found = false;
 	int pos = 0;
 
+	// Iterate header tokens until match is found
 	for (const auto &token : tokens) {
 		if (token == search) {
 			found = true;
@@ -105,6 +106,7 @@ int Parser::get_header_column(const std::string &header, const std::string &sear
 		}
 	}
 
+	// If a match was found, return the position. Otherwise return -1
 	if (found) 
 		return pos;
 	else 

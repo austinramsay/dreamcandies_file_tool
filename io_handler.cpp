@@ -31,12 +31,14 @@ std::vector<std::string> IO_handler::read_lines(const std::string& filename) {
 	file_in.open(filename);
 	if (file_in.is_open()) {
 		while (file_in) {
-			getline(file_in, cur_line);
-			lines.push_back(cur_line);
+			if (getline(file_in, cur_line))
+				lines.push_back(cur_line);
 		}
 	} else {
 		std::cout << "File '" << filename << "' failed to open." << std::endl;
 	}
+
+	file_in.close();
 
 	return lines;
 }
@@ -61,11 +63,12 @@ int IO_handler::write_lines(const std::string& filename, const std::vector<std::
 			file_out << str << "\n";
 			count++;
 		}
-		count -= 1;	// Offset last empty line written
 		std::cout << "Wrote '" << count << "' lines to file: '" << filename << "'." << std::endl;
 	} else {
 		std::cout << "File '" << filename << "' failed to open." << std::endl;
 	}
+
+	file_out.close();
 
 	return count;
 }
