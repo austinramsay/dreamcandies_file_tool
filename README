@@ -1,0 +1,14 @@
+To build and run the Dream Candies File Tool,
+
+$ make
+$ ./extractor
+
+with expected 'CUSTOMER.CSV', 'INVOICE.CSV' and 'INVOICE_ITEM.CSV' 
+full database CSV extracts in the same path along with the pre-
+selected 1000 customer codes located in 'CUSTOMER_SAMPLE.CSV'.
+
+All file parameters and header values can be changed in macros 
+under 'extractor.cpp' if necessary. 
+
+Austin Ramsay
+austinramsay@gmail.com
