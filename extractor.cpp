@@ -31,6 +31,7 @@
 // Output CSV paths for compacted tables
 #define CUSTOMER_EXTRACTED_PATH "CUSTOMER_EXTRACTED.CSV"
 #define INVOICE_EXTRACTED_PATH "INVOICE_EXTRACTED.CSV"
+#define INVOICE_ITEM_EXTRACTED_PATH "INVOICE_ITEM_EXTRACTED.CSV"
 
 // Expected parameters
 #define PRESELECT_COUNT 1000
@@ -70,12 +71,17 @@ int main() {
 	buffer.clear();
 
 	// Extract relevant entries from the INVOICE.CSV file
-	buffer = get_matching_entries(INVOICE_TABLE_PATH, ICODE_HEADER, cust_codes, false);
+	buffer = get_matching_entries(INVOICE_TABLE_PATH, CCODE_HEADER, cust_codes, false);
 	io_handle.write_lines(INVOICE_EXTRACTED_PATH, buffer);
 	buffer.clear();
 
 	// Extract invoice codes from INVOICE_EXTRACTED.CSV to prepare for extraction of relevant invoice items
 	std::vector<std::string> inv_codes = extract_column(INVOICE_EXTRACTED_PATH, ICODE_HEADER);
+
+	// Extract relevant invoice items using invoice codes from INVOICE_EXTRACTED.CSV
+	buffer = get_matching_entries(INVOICE_ITEM_TABLE_PATH, ICODE_HEADER, inv_codes, false);
+	io_handle.write_lines(INVOICE_ITEM_EXTRACTED_PATH, buffer);
+	buffer.clear();
 
 	return 0;
 }
@@ -89,6 +95,12 @@ std::vector<std::string> extract_column(const std::string path, const std::strin
         // Pre-selected customer codes vector
         std::vector<std::string> raw_data = io_handle.read_lines(path);
         std::vector<std::string> extr_data;
+
+	// Verify we extracted any information from the CSV file
+	if (raw_data.empty()) {
+		std::cout << "Warning: no entries read from '" << path << "'." << std::endl;
+		return raw_data;
+	}
 
         // Determine what column number the requested header is located in
 	// Header expected at line 0
@@ -120,9 +132,13 @@ std::vector<std::string> get_matching_entries(const std::string path, const std:
 	}
 
 	// Determine column header position
-	int column_pos = parser.get_header_column(entries.at(0), CCODE_HEADER, TKN_DELIM, STR_DELIM);
+	int column_pos = parser.get_header_column(entries.at(0), match_header, TKN_DELIM, STR_DELIM);
 
-	buffer.push_back(entries.at(0));
+	// Insert header at beginning of buffer
+	buffer.insert(buffer.begin(), entries.at(0));
+
+	// Remove header from our raw data to avoid unnecessary loops
+	entries.erase(entries.begin());
 
 	// Iterate through the customer codes we're looking for
 	for (const auto &search : match_tokens) {
@@ -139,6 +155,7 @@ std::vector<std::string> get_matching_entries(const std::string path, const std:
 			}
 		}
 	}
+
 
 	return buffer;
 }
